@@ -36,7 +36,7 @@ export default function VSCodeEditor() {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [terminalHeight, setTerminalHeight] = useState(200);
   const isResizing = useRef(false);
-=======
+
   const [folderName, setFolderName] = useState<string>("");
 
 
@@ -131,76 +131,76 @@ export default function VSCodeEditor() {
   return (
     <div className="h-screen flex flex-col bg-background text-foreground">
       {/* Header */}
-      <header className="h-12 bg-card border-b border-border flex items-center justify-between px-4 shadow-sm shrink-0">
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <h1 className="text-lg font-semibold">Vithsutra Editor</h1>
-        </div>
+   <header className="h-12 bg-card border-b border-border flex items-center justify-between px-4 shadow-sm shrink-0">
+  <div className="flex items-center space-x-2">
+    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
+      <svg
+        className="w-4 h-4 text-white"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fillRule="evenodd"
+          d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </div>
+    <h1 className="text-lg font-semibold">Vithsutra Editor</h1>
+  </div>
 
-        <div className="flex items-center space-x-2">
-          <ProjectDropdown />
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="outline"
-                className="rounded-2xl bg-primary w-[60px] text-white font-semibold text-md leading-none hover:bg-primary/90"
-        <div className="">
-          <ProjectDropdown 
-            onProjectOpen={async (path) => {
-              try {
-                const files: FileNode[] = await invoke("read_folder", { path });
-                setFileTree(files);
-                setFolderName(files[0].folder_name);
-              } catch (error) {
-                console.error("Failed to read new project:", error);
-              }
-            }}
-          />
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant={"outline"}
-                className="ml-4 rounded-2xl bg-primary w-[60px] text-white font-semibold text-md leading-none hover:bg-primary/90 hover:text-white"
-              
+  <div className="flex items-center space-x-2">
+    {/* First Project Dropdown */}
+   
 
-              >
-                <ArrowRightIcon className="w-5 h-5 font-bold" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Compile and Flash</p>
-            </TooltipContent>
-          </Tooltip>
+    {/* This was broken Button – removed the dangling part */}
+    {/* Second Project Dropdown */}
+    <div className="">
+      <ProjectDropdown
+        onProjectOpen={async (path) => {
+          try {
+            const files: FileNode[] = await invoke("read_folder", { path });
+            setFileTree(files);
+            setFolderName(files[0].folder_name);
+          } catch (error) {
+            console.error("Failed to read new project:", error);
+          }
+        }}
+      />
 
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setIsTerminalOpen((prev) => !prev)}
-              >
-                <TerminalIcon className="w-5 h-5 text-primary" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Toggle Terminal</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </header>
+      {/* Compile and Flash Button */}
+      <Tooltip>
+        <TooltipTrigger>
+          <Button
+            variant={"outline"}
+            className="ml-4 rounded-2xl bg-primary w-[60px] text-white font-semibold text-md leading-none hover:bg-primary/90 hover:text-white"
+          >
+            <ArrowRightIcon className="w-5 h-5 font-bold" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Compile and Flash</p>
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Terminal Toggle Button */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setIsTerminalOpen((prev) => !prev)}
+          >
+            <TerminalIcon className="w-5 h-5 text-primary" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Toggle Terminal</p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  </div>
+</header>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
