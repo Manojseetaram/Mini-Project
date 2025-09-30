@@ -15,6 +15,7 @@ interface CreateItemDialogProps {
   parentName?: string
 }
 
+
 export function CreateItemDialog({ isOpen, onClose, onConfirm, type, parentName }: CreateItemDialogProps) {
   const [name, setName] = useState("")
 

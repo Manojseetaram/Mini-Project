@@ -63,7 +63,7 @@ export default function CodeEditor({ file, onContentChange }: CodeEditorProps) {
   // Define custom themes
   useEffect(() => {
     try {
-      // Light theme for C programming
+     
       monaco.editor.defineTheme("c-light-theme", {
         base: "vs",
         inherit: true,
