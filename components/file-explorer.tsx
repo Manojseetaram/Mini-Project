@@ -56,10 +56,11 @@ export function FileExplorer({
 
   const deleteNode = (nodeId: string) => {
     const removeNode = (nodes: FileNode[]): FileNode[] => {
+      const res = invoke("delete_path", { path: `${nodeId}` });
       return nodes.filter((node) => {
         if (node.id === nodeId) return false;
         if (node.children) {
-          node.children = removeNode(node.children);
+          // node.children = removeNode(node.children);
         }
         return true;
       });
@@ -80,11 +81,11 @@ export function FileExplorer({
   };
 
   try {
-    const basePath = "/Users/manojseetaramgowda/Desktop"; // change as needed
-    let fullPath = `${basePath}/${name}`;
-
+    const basePath = "/home/shettyanikethan/Desktop"; 
+    let fullPath = `${basePath}/${folder_name}/${name}`;
+    console.log(createDialog.parentName);
     if (createDialog.parentName) {
-      fullPath = `${basePath}/${createDialog.parentName}/${name}`;
+      fullPath = `${basePath}/${folder_name}/${createDialog.parentName}/${name}`;
     }
 
     if (createDialog.type === "folder") {
@@ -93,8 +94,9 @@ export function FileExplorer({
       console.log(result);
     } else if (createDialog.type === "file") {
       // Create file in OS
-      const result = await invoke<string>("create_file", { path: fullPath, content: "" });
-      console.log(result); // "File created: /Users/.../name"
+      const result = await invoke<string>("create_file", { path: fullPath });
+      console.log(result);
+      // console.log(result); // "File created: /Users/.../name"
     }
 
     // Update React state
@@ -516,7 +518,7 @@ export function FileExplorer({
         )}
       </div>
 
-      <CreateItemDialog
+      <CreateItemDialog 
         isOpen={createDialog.isOpen}
         onClose={() => setCreateDialog({ isOpen: false, type: "file" })}
         onConfirm={createItem}

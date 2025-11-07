@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { invoke } from "@tauri-apps/api/tauri"
 
 interface CreateItemDialogProps {
   isOpen: boolean
@@ -23,6 +24,10 @@ export function CreateItemDialog({ isOpen, onClose, onConfirm, type, parentName 
     e.preventDefault()
     if (name.trim()) {
       onConfirm(name.trim())
+      // const res = invoke("create_file",{
+      //   path: parentName,
+      //   path2: parentName,
+      // })
       setName("")
       onClose()
     }
@@ -56,11 +61,11 @@ export function CreateItemDialog({ isOpen, onClose, onConfirm, type, parentName 
                 onKeyDown={handleKeyDown}
                 placeholder={type === "file" ? "example.tsx" : "folder-name"}
                 autoFocus
-                className="mt-1"
+                className="mt-3"
               />
             </div>
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-2 mt-4">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>

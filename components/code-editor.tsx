@@ -60,10 +60,9 @@ export default function CodeEditor({ file, onContentChange }: CodeEditorProps) {
     setTheme("light")
   }, [setTheme])
 
-  // Define custom themes
+  // Define custom Monaco themes
   useEffect(() => {
     try {
-     
       monaco.editor.defineTheme("c-light-theme", {
         base: "vs",
         inherit: true,
@@ -93,7 +92,6 @@ export default function CodeEditor({ file, onContentChange }: CodeEditorProps) {
         },
       })
 
-      // Dark theme for C programming
       monaco.editor.defineTheme("c-dark-theme", {
         base: "vs-dark",
         inherit: true,
@@ -123,12 +121,12 @@ export default function CodeEditor({ file, onContentChange }: CodeEditorProps) {
         },
       })
     } catch (error) {
-      console.error("[v0] Error defining themes:", error)
+      console.error("Error defining themes:", error)
       setError("Failed to load editor themes")
     }
   }, [])
 
-  // Create Monaco editor ONCE
+  // Create Monaco editor once
   useEffect(() => {
     if (!editorRef.current || monacoRef.current) return
 
@@ -140,156 +138,104 @@ export default function CodeEditor({ file, onContentChange }: CodeEditorProps) {
         fontSize: 16,
         fontFamily: 'Consolas, "Courier New", monospace',
         lineNumbers: "on",
-        lineNumbersMinChars: 4,
-        lineDecorationsWidth: 10,
-        glyphMargin: true,
-        folding: true,
         automaticLayout: true,
-        scrollBeyondLastLine: false,
-        wordWrap: "off",
         minimap: { enabled: false },
-        contextmenu: true,
-        selectOnLineNumbers: true,
-        readOnly: false,
-        cursorStyle: "line",
-        cursorWidth: 2,
+        scrollBeyondLastLine: false,
         cursorBlinking: "blink",
-        cursorSmoothCaretAnimation: "on",
-        renderWhitespace: "selection",
-        renderControlCharacters: false,
-        fontLigatures: false,
-        mouseWheelZoom: true,
-        suggest: {
-          insertMode: "insert",
-          filterGraceful: true,
-          showIcons: true,
-          showMethods: true,
-          showFunctions: true,
-          showConstructors: true,
-          showFields: true,
-          showVariables: true,
-          showClasses: true,
-          showStructs: true,
-          showInterfaces: true,
-          showModules: true,
-          showProperties: true,
-          showEvents: true,
-          showOperators: true,
-          showUnits: true,
-          showValues: true,
-          showConstants: true,
-          showEnums: true,
-          showEnumMembers: true,
-          showKeywords: true,
-          showWords: true,
-          showColors: true,
-          showFiles: true,
-          showReferences: true,
-          showFolders: true,
-          showTypeParameters: true,
-          showSnippets: true,
-        },
-        acceptSuggestionOnCommitCharacter: true,
-        acceptSuggestionOnEnter: "on",
-        autoIndent: "full",
-        tabSize: 4,
-        insertSpaces: true,
-        detectIndentation: true,
-        trimAutoWhitespace: true,
-        wordSeparators: "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
-        wrappingStrategy: "simple",
-      })
-
-      monacoRef.current.onDidChangeModelContent(() => {
-        if (monacoRef.current && onContentChange && !isTyping.current) {
-          const content = monacoRef.current.getValue()
-          onContentChange(content)
-        }
+        wordWrap: "off",
       })
 
       setIsLoading(false)
       setError(null)
 
+      // Focus editor after load
       setTimeout(() => {
-        if (monacoRef.current) {
-          monacoRef.current.focus()
-        }
+        monacoRef.current?.focus()
       }, 100)
     } catch (error) {
-      console.error("[v0] Error creating Monaco editor:", error)
+      console.error("Error creating Monaco editor:", error)
       setError("Failed to initialize code editor")
       setIsLoading(false)
     }
 
     return () => {
-      if (monacoRef.current) {
-        monacoRef.current.dispose()
-        monacoRef.current = null
-      }
+      monacoRef.current?.dispose()
+      monacoRef.current = null
     }
-  }, [file.id, onContentChange])
+  }, [file.id])
 
+  // Handle typing updates
   useEffect(() => {
-    if (monacoRef.current) {
-      monaco.editor.setTheme("c-light-theme")
-    }
-  }, [theme])
+    if (!monacoRef.current) return
 
-  // Update language when file name changes
-  useEffect(() => {
-    if (monacoRef.current) {
-      const model = monacoRef.current.getModel()
-      if (model) {
-        monaco.editor.setModelLanguage(model, getLanguage(file.name))
+    const editor = monacoRef.current
+    const disposable = editor.onDidChangeModelContent(() => {
+      const newContent = editor.getValue()
+      if (!isTyping.current) {
+        isTyping.current = true
+        onContentChange?.(newContent)
+        isTyping.current = false
       }
+    })
+
+    return () => disposable.dispose()
+  }, [onContentChange])
+
+  // Update content from external changes (switching files, etc.)
+  useEffect(() => {
+    if (!monacoRef.current || file.content === undefined) return
+
+    const editor = monacoRef.current
+    const currentContent = editor.getValue()
+    if (currentContent !== file.content) {
+      const position = editor.getPosition()
+      editor.setValue(file.content)
+      if (position) editor.setPosition(position)
+    }
+  }, [file.id, file.content])
+
+  // Update language when file changes
+  useEffect(() => {
+    const model = monacoRef.current?.getModel()
+    if (model) {
+      monaco.editor.setModelLanguage(model, getLanguage(file.name))
     }
   }, [file.name])
 
-  // Update content when file content changes (but not during typing)
+  // Apply theme
   useEffect(() => {
-    if (monacoRef.current && file.content !== undefined) {
-      const currentContent = monacoRef.current.getValue()
-      if (currentContent !== file.content && !isTyping.current) {
-        isTyping.current = true
-        monacoRef.current.setValue(file.content)
-        setTimeout(() => {
-          isTyping.current = false
-        }, 100)
-      }
-    }
-  }, [file.content])
+    monaco.editor.setTheme("c-light-theme")
+  }, [theme])
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center bg-background">
-        <div className="text-center">
-          <p className="text-destructive mb-4">{error}</p>
-          <button
-            onClick={() => {
-              setError(null)
-              setIsLoading(true)
-              if (monacoRef.current) {
-                monacoRef.current.dispose()
-                monacoRef.current = null
-              }
-            }}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
-          >
-            Retry
-          </button>
+        <div className="flex h-full items-center justify-center bg-background">
+          <div className="text-center">
+            <p className="text-destructive mb-4">{error}</p>
+            <button
+                onClick={() => {
+                  setError(null)
+                  setIsLoading(true)
+                  monacoRef.current?.dispose()
+                  monacoRef.current = null
+                }}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+            >
+              Retry
+            </button>
+          </div>
         </div>
-      </div>
     )
   }
 
   return (
-    <div className="relative h-full">
-      {isLoading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      )}
-      <div ref={editorRef} className="size-full" />
-    </div>
+      <div className="relative h-full">
+        {isLoading && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+        )}
+        <div ref={editorRef} className="size-full" />
+      </div>
   )
 }

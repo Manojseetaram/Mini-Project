@@ -48,7 +48,6 @@ export function ProjectNameDialog({
       console.log("Project created:", res);
       if (res.success) {
         setOpen(false);
-
         onSucess(res.path);
         setError("");
       } else {

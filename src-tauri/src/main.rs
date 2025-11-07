@@ -498,13 +498,13 @@
 //         .expect("error while running tauri application");
 // }
 
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
+// #![cfg_attr(
+//     all(not(debug_assertions), target_os = "windows"),
+//     windows_subsystem = "windows"
+// )]
 
 use std::{
-    fs::{self, File},
+    fs::{self, File, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -533,7 +533,7 @@ fn create_esp_idf_project(project_name: &str) -> tauri::Result<ProjectResult> {
         });
     }
 
-    let status = Command::new("idf.py")
+    let status = Command::new("/home/shettyanikethan/esp/esp-idf/tools/idf.py")
         .arg("create-project")
         .arg(project_name)
         .current_dir("/home/shettyanikethan/Desktop")
@@ -551,7 +551,7 @@ fn create_esp_idf_project(project_name: &str) -> tauri::Result<ProjectResult> {
         Ok(ProjectResult {
             success: false,
             path: "none".to_string(),
-            message: "Failed to create project".to_string(),
+            message: "Failed to create project ".to_string(),
         })
     }
 }
@@ -605,6 +605,7 @@ fn read_dir_recursive(path: &Path, folder_name: &str) -> std::io::Result<Vec<Fil
 #[command]
 fn read_folder(path: &str) -> tauri::Result<Vec<FileNode>> {
     let path_buf = PathBuf::from(path);
+    println!("{} from path",path);
     if !path_buf.exists() || !path_buf.is_dir() {
         return Ok(vec![]);
     }
@@ -616,7 +617,6 @@ fn read_folder(path: &str) -> tauri::Result<Vec<FileNode>> {
     let files = read_dir_recursive(&path_buf, &root_name)?;
     Ok(files)
 }
-
 
 #[command]
 fn create_folder(path: String) -> Result<String, String> {
@@ -634,8 +634,10 @@ fn create_folder(path: String) -> Result<String, String> {
 
 
 #[command]
-fn create_file(path: String, content: Option<String>) -> Result<String, String> {
+fn create_file(path: String) -> Result<String, String> {
     let file_path = PathBuf::from(&path);
+    println!("{path} from path");
+
 
     if file_path.exists() {
         return Err(format!("File already exists: {}", path));
@@ -644,12 +646,52 @@ fn create_file(path: String, content: Option<String>) -> Result<String, String> 
     let mut file = File::create(&file_path)
         .map_err(|e| format!("Failed to create file: {}", e))?;
 
-    if let Some(text) = content {
-        file.write_all(text.as_bytes())
-            .map_err(|e| format!("Failed to write to file: {}", e))?;
-    }
+    // if let Some(text) = content {
+    //     file.write_all(text.as_bytes())
+    //         .map_err(|e| format!("Failed to write to file: {}", e))?;
+    // }
 
     Ok(format!("File created: {}", path))
+}
+
+#[command]
+fn write_file(path: String,content:String) -> Result<String, String> {
+    let file_path = PathBuf::from(&path);
+    let mut file = OpenOptions::new()
+                            .write(true)
+                            .truncate(true)
+                            .open(&path)
+                            .map_err(|error| format!("Failed to write: {}", error))?;
+
+    file.write_all(content.as_bytes())
+        .map_err(|e| format!("Failed to write to file: {}", e))?;
+
+    Ok(format!("File created: {}", path))
+}
+
+#[command]
+fn delete_path(path: String) -> Result<String, String> {
+
+    let path_buf = PathBuf::from(&path);
+    println!("{path} from path");
+
+    if !path_buf.exists() {
+        return Err(format!("Path does not exist: {}", path));
+    }
+
+
+
+    if path_buf.is_file() {
+        fs::remove_file(&path_buf)
+            .map_err(|e| format!("Failed to delete file: {}", e))?;
+        Ok(format!("File deleted: {}", path))
+    } else if path_buf.is_dir() {
+        fs::remove_dir_all(&path_buf)
+            .map_err(|e| format!("Failed to delete directory: {}", e))?;
+        Ok(format!("Directory deleted: {}", path))
+    } else {
+        Err(format!("Unknown path type: {}", path))
+    }
 }
 
 fn main() {
@@ -658,7 +700,9 @@ fn main() {
             create_esp_idf_project,
             read_folder,
             create_folder,
-            create_file
+            create_file,
+            delete_path,
+            write_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

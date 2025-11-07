@@ -347,7 +347,7 @@ export default function VSCodeEditor() {
   useEffect(() => {
     const loadFolder = async () => {
       try {
-        const files: FileNode[] = await invoke("read_folder", { path: "/home/shettyanikethan/Desktop/test" });
+        const files: FileNode[] = await invoke("read_folder", { path: "/home/shettyanikethan/Desktop/bio" });
         if (files.length > 0) setFolderName(files[0].folder_name);
         setFileTree(files);
       } catch (error) {
@@ -361,7 +361,7 @@ export default function VSCodeEditor() {
   useEffect(() => {
     const loadRecentProjects = async () => {
       try {
-        const files: FileNode[] = await invoke("read_folder", { path: "/Users/manojseetaramgowda/Desktop" });
+        const files: FileNode[] = await invoke("read_folder", { path: "/home/shettyanikethan/Desktop/bio" });
         const folders = files.filter(f => f.type === "folder").map(f => f.id);
         setRecentProjects(folders);
       } catch (error) {
@@ -412,7 +412,8 @@ export default function VSCodeEditor() {
     }
   };
 
-  const updateFileContent = (fileId: string, content: string) => {
+  const updateFileContent = async(fileId: string, content: string) => {
+    const res = await invoke("write_file", { path: `${fileId}`, content });
     const updateNode = (nodes: FileNode[]): FileNode[] =>
       nodes.map(node => {
         if (node.id === fileId) return { ...node, content };
@@ -530,7 +531,7 @@ export default function VSCodeEditor() {
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 min-h-0" style={{ height: `calc(100% - ${isTerminalOpen ? terminalHeight : 0}px)` }}>
               {activeFile ? (
-                <CodeEditor key={activeFile.id} file={activeFile} onChange={(content: any) => updateFileContent(activeFile.id, content)} />
+                <CodeEditor key={activeFile.id} file={activeFile} onContentChange={(content: any) => updateFileContent(activeFile.id, content)} />
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-background/50 gap-4">
                   <div className="text-center max-w-md">
