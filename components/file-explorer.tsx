@@ -81,7 +81,7 @@ export function FileExplorer({
   };
 
   try {
-    const basePath = "/home/shettyanikethan/Desktop"; 
+    const basePath = "/Users/manojseetaramgowda/Desktop"; 
     let fullPath = `${basePath}/${folder_name}/${name}`;
     console.log(createDialog.parentName);
     if (createDialog.parentName) {

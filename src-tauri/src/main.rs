@@ -523,7 +523,7 @@ struct ProjectResult {
 
 #[command]
 fn create_esp_idf_project(project_name: &str) -> tauri::Result<ProjectResult> {
-    let project_path = Path::new("/home/shettyanikethan/Desktop").join(project_name);
+    let project_path = Path::new("/Users/manojseetaramgowda/Desktop").join(project_name);
 
     if project_path.exists() {
         return Ok(ProjectResult {
@@ -533,10 +533,10 @@ fn create_esp_idf_project(project_name: &str) -> tauri::Result<ProjectResult> {
         });
     }
 
-    let status = Command::new("/home/shettyanikethan/esp/esp-idf/tools/idf.py")
+    let status = Command::new("/Users/manojseetaramgowda/Desktop/esp/esp-idf/tools/idf.py")
         .arg("create-project")
         .arg(project_name)
-        .current_dir("/home/shettyanikethan/Desktop")
+        .current_dir("/Users/manojseetaramgowda/Desktop")
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .status()?;

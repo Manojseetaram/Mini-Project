@@ -347,7 +347,7 @@ export default function VSCodeEditor() {
   useEffect(() => {
     const loadFolder = async () => {
       try {
-        const files: FileNode[] = await invoke("read_folder", { path: "/home/shettyanikethan/Desktop/bio" });
+        const files: FileNode[] = await invoke("read_folder", { path: "/Users/manojseetaramgowda/Desktop/bio" });
         if (files.length > 0) setFolderName(files[0].folder_name);
         setFileTree(files);
       } catch (error) {
@@ -361,7 +361,7 @@ export default function VSCodeEditor() {
   useEffect(() => {
     const loadRecentProjects = async () => {
       try {
-        const files: FileNode[] = await invoke("read_folder", { path: "/home/shettyanikethan/Desktop/bio" });
+        const files: FileNode[] = await invoke("read_folder", { path: "/Users/manojseetaramgowda/Desktop/bio" });
         const folders = files.filter(f => f.type === "folder").map(f => f.id);
         setRecentProjects(folders);
       } catch (error) {
