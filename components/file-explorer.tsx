@@ -267,6 +267,14 @@ export function FileExplorer({
             PY
           </div>
         );
+          case "rs":
+        return (
+          <div
+            className={`${iconClass} bg-orange-500 rounded-sm flex items-center justify-center text-white text-xs font-bold`}
+          >
+            RS
+          </div>
+        );
       case "c":
         return (
           <div
