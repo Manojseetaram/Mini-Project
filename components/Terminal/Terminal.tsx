@@ -1,4 +1,118 @@
+// "use client";
+// import { useEffect, useRef, useState } from "react";
+// import { invoke } from "@tauri-apps/api/tauri";
+
+// interface TerminalLine {
+//   id: number;
+//   content: string;
+//   type: "input" | "output" | "error";
+// }
+
+// export default function Terminal() {
+//   const [lines, setLines] = useState<TerminalLine[]>([]);
+//   const [currentInput, setCurrentInput] = useState("");
+//   const [lineId, setLineId] = useState(0);
+//   const inputRef = useRef<HTMLInputElement>(null);
+//   const terminalRef = useRef<HTMLDivElement>(null);
+
+//   useEffect(() => {
+//     inputRef.current?.focus();
+//   }, []);
+
+//   useEffect(() => {
+//     if (terminalRef.current) {
+//       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+//     }
+//   }, [lines]);
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (!currentInput.trim()) return;
+
+//     const command = currentInput.trim();
+
+//     // Add input line
+//     setLines((prev) => [
+//       ...prev,
+//       { id: lineId, content: `$ ${command}`, type: "input" },
+//     ]);
+//     setLineId((prev) => prev + 1);
+
+//     // Handle local commands
+//     if (command === "clear") {
+//       setLines([]);
+//       setCurrentInput("");
+//       return;
+//     }
+
+//     try {
+//       const [cmd, ...args] = command.split(" ");
+
+//       const result = await invoke("run_command", {
+//         command: cmd,
+//         args: args,
+//       }) as string;
+
+//       // Split result by lines and display each line
+//       const resultLines = result.split("\n");
+//       resultLines.forEach((line, index) => {
+//         setLines((prev) => [
+//           ...prev,
+//           { id: lineId + index + 1, content: line, type: "output" },
+//         ]);
+//       });
+//       setLineId((prev) => prev + resultLines.length + 1);
+//     } catch (error: any) {
+//       setLines((prev) => [
+//         ...prev,
+//         { id: lineId + 1, content: `Error: ${error}`, type: "error" },
+//       ]);
+//       setLineId((prev) => prev + 2);
+//     }
+
+//     setCurrentInput("");
+//   };
+
+//   const handleClick = () => inputRef.current?.focus();
+
+//   return (
+//     <div
+//       ref={terminalRef}
+//       className="w-full h-full bg-white text-black font-mono text-sm p-2 overflow-y-auto cursor-text"
+//       onClick={handleClick}
+//     >
+//       {lines.map((line) => (
+//         <div
+//           key={line.id}
+//           className={`whitespace-pre-wrap ${
+//             line.type === "error"
+//               ? "text-red-600"
+//               : line.type === "output"
+//               ? "text-black"
+//               : "text-black" // input text
+//           }`}
+//         >
+//           {line.content}
+//         </div>
+//       ))}
+
+//       <form onSubmit={handleSubmit} className="flex items-center">
+//         <span className="text-black mr-1">$</span>
+//         <input
+//           ref={inputRef}
+//           type="text"
+//           value={currentInput}
+//           onChange={(e) => setCurrentInput(e.target.value)}
+//           className="flex-1 bg-transparent border-none outline-none text-black font-mono"
+//           autoComplete="off"
+//           spellCheck={false}
+//         />
+//       </form>
+//     </div>
+//   );
+// }
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 
@@ -11,13 +125,19 @@ interface TerminalLine {
 export default function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [currentInput, setCurrentInput] = useState("");
-  const [lineId, setLineId] = useState(0);
+  const [cwd, setCwd] = useState(""); // Track current directory
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
+    fetchCwd();
   }, []);
+
+  const fetchCwd = async () => {
+    const result = await invoke("run_command", { full: "pwd" });
+    setCwd(result as string);
+  };
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -30,15 +150,15 @@ export default function Terminal() {
     if (!currentInput.trim()) return;
 
     const command = currentInput.trim();
+    const id = lines.length + 1;
 
-    // Add input line
+    // Show the command input with cwd prefix
     setLines((prev) => [
       ...prev,
-      { id: lineId, content: `$ ${command}`, type: "input" },
+      { id, content: `${cwd} $ ${command}`, type: "input" },
     ]);
-    setLineId((prev) => prev + 1);
 
-    // Handle local commands
+    // Clear command
     if (command === "clear") {
       setLines([]);
       setCurrentInput("");
@@ -46,50 +166,44 @@ export default function Terminal() {
     }
 
     try {
-      const [cmd, ...args] = command.split(" ");
+      // Send full raw command to Tauri backend
+      const result = (await invoke("run_command", {
+        full: command,
+      })) as string;
 
-      const result = await invoke("run_command", {
-        command: cmd,
-        args: args,
-      }) as string;
-
-      // Split result by lines and display each line
       const resultLines = result.split("\n");
-      resultLines.forEach((line, index) => {
+      let nextId = id + 1;
+
+      resultLines.forEach((line) => {
         setLines((prev) => [
           ...prev,
-          { id: lineId + index + 1, content: line, type: "output" },
+          { id: nextId++, content: line, type: "output" },
         ]);
       });
-      setLineId((prev) => prev + resultLines.length + 1);
+
+      // Update cwd after each command
+      await fetchCwd();
     } catch (error: any) {
       setLines((prev) => [
         ...prev,
-        { id: lineId + 1, content: `Error: ${error}`, type: "error" },
+        { id: id + 1, content: `Error: ${error}`, type: "error" },
       ]);
-      setLineId((prev) => prev + 2);
     }
 
     setCurrentInput("");
   };
 
-  const handleClick = () => inputRef.current?.focus();
-
   return (
     <div
       ref={terminalRef}
       className="w-full h-full bg-white text-black font-mono text-sm p-2 overflow-y-auto cursor-text"
-      onClick={handleClick}
+      onClick={() => inputRef.current?.focus()}
     >
       {lines.map((line) => (
         <div
           key={line.id}
           className={`whitespace-pre-wrap ${
-            line.type === "error"
-              ? "text-red-600"
-              : line.type === "output"
-              ? "text-black"
-              : "text-black" // input text
+            line.type === "error" ? "text-red-600" : "text-black"
           }`}
         >
           {line.content}
@@ -97,7 +211,7 @@ export default function Terminal() {
       ))}
 
       <form onSubmit={handleSubmit} className="flex items-center">
-        <span className="text-black mr-1">$</span>
+        <span className="text-black mr-1">{cwd} $</span>
         <input
           ref={inputRef}
           type="text"
