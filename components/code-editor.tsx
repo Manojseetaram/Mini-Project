@@ -35,10 +35,10 @@ function getLanguage(fileName: string): string {
       return "html"
     case "css":
       return "css"
-    case "rs":
+    case "rust":
        return "rs"
     case "json":
-      return "json"
+      return "json" 
     case "md":
       return "markdown"
     case "xml":
