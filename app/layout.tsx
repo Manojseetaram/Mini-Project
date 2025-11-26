@@ -8,7 +8,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "Vithsutra-app",
+  title: "Code-Light",
   description: "Created with v0",
   generator: "v0.app",
 }

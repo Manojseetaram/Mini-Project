@@ -446,7 +446,7 @@ export default function VSCodeEditor() {
         />
       </svg>
     </div>
-    <h1 className="text-lg font-semibold">Vithsutra Editor</h1>
+    <h1 className="text-lg font-semibold">Code Light</h1>
   </div>
 
   <div className="flex items-center space-x-2">
