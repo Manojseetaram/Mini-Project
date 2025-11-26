@@ -153,7 +153,7 @@ useEffect(() => {
         />
       </svg>
     </div>
-    <h1 className="text-lg font-semibold">Code Light</h1>
+    <h1 className="text-lg font-semibold">Light Code</h1>
   </div>
 
   <div className="flex items-center space-x-2">
@@ -249,7 +249,7 @@ useEffect(() => {
                         <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd"/>
                       </svg>
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">Welcome to VS Code Editor</h2>
+                    <h2 className="text-xl font-semibold mb-2">Welcome to Light Code Editor</h2>
                     <p className="text-sm mb-6 text-muted-foreground/80">
                       Select a file from the explorer to start editing, or create a new project to begin coding.
                     </p>

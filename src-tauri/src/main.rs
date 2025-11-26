@@ -9,12 +9,9 @@ use std::{
 use serde::Serialize;
 use tauri::{command, State};
 use std::sync::{Arc, Mutex};
-use dirs; // <-- IMPORTANT
+use dirs; 
 
-//
-// -------------------------
-// TERMINAL STATE
-// -------------------------
+
 struct ShellState {
     cwd: String,
 }
@@ -33,9 +30,7 @@ fn run_command(full: String, state: State<'_, Arc<Mutex<ShellState>>>) -> Result
     let command = parts[0];
     let args: Vec<&str> = parts[1..].to_vec();
 
-    // -----------------------
-    // HANDLE CD COMMAND
-    // -----------------------
+
     if command == "cd" {
         let target = args.get(0).copied().unwrap_or("");
 
@@ -58,9 +53,8 @@ fn run_command(full: String, state: State<'_, Arc<Mutex<ShellState>>>) -> Result
         }
     }
 
-    // -----------------------
-    // EXECUTE NORMAL COMMANDS
-    // -----------------------
+   
+ 
     let output = Command::new("zsh")
         .arg("-c")
         .arg(full) // run full command
@@ -75,10 +69,7 @@ fn run_command(full: String, state: State<'_, Arc<Mutex<ShellState>>>) -> Result
     Ok(result.trim().to_string())
 }
 
-//
-// -------------------------
-// PROJECT CREATION LOGIC
-// -------------------------
+
 #[derive(Serialize)]
 struct ProjectResult {
     success: bool,
@@ -121,10 +112,7 @@ fn create_esp_idf_project(project_name: &str) -> tauri::Result<ProjectResult> {
     }
 }
 
-//
-// -------------------------
-// FILE EXPLORER LOGIC
-// -------------------------
+
 #[derive(Debug, Serialize)]
 pub struct FileNode {
     pub id: String,
@@ -254,10 +242,7 @@ fn delete_path(path: String) -> Result<String, String> {
     }
 }
 
-//
-// -------------------------
-// MAIN
-// -------------------------
+
 fn main() {
     tauri::Builder::default()
         .manage(Arc::new(Mutex::new(ShellState {

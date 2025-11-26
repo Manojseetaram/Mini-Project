@@ -17,7 +17,7 @@ tauri-build = { version = "1.5.5", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.8.1", features = ["fs-all"] }
+tauri = { version = "1.8.1", features = [ "dialog-save", "dialog-ask", "dialog-open", "dialog-message", "dialog-confirm"] }
 dirs = "6.0.0"
 
 reqwest = { version = "0.11", features = ["json", "blocking", "rustls-tls"] } # <- json + tls

@@ -12,10 +12,15 @@
   },
   "tauri": {
     "allowlist": {
-      "fs" : {
-      "all": true
-      }
-    },
+  "dialog": {
+    "open": true,
+    "save": true,
+    "message": true,
+    "ask": true,
+    "confirm": true
+  }
+},
+
     "bundle": {
       "active": true,
       "category": "DeveloperTool",

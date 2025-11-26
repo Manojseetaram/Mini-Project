@@ -9,7 +9,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "Code-Light",
+  title: "Light-Code",
   description: "Created with v0",
   generator: "v0.app",
 }
