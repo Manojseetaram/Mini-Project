@@ -77,6 +77,18 @@ export default function VSCodeEditor() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+// Load saved recent projects from localStorage when the app starts
+useEffect(() => {
+  const saved = localStorage.getItem("recentProjects");
+  if (saved) {
+    setRecentProjects(JSON.parse(saved));
+  }
+}, []);
+// Save recent projects to localStorage whenever they change
+useEffect(() => {
+  localStorage.setItem("recentProjects", JSON.stringify(recentProjects));
+}, [recentProjects]);
+
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -302,8 +314,11 @@ export default function VSCodeEditor() {
 
       alert(result); // Shows "Folder created: ..."
 
-      // Add folder to recent projects
-      setRecentProjects(prev => [fullPath, ...prev]);
+   setRecentProjects(prev => {
+  const updated = [fullPath, ...prev.filter(p => p !== fullPath)];
+  return updated.slice(0, 10); // Keep only last 10
+});
+
 
       
       setFileTree(prev => [
