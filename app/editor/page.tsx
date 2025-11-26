@@ -164,36 +164,38 @@ export default function VSCodeEditor() {
       />
 
       {/* Compile and Flash Button */}
-      <Tooltip>
-        <TooltipTrigger>
-          <Button
-            variant={"outline"}
-            className="ml-4 rounded-2xl bg-primary w-[60px] text-white font-semibold text-md leading-none hover:bg-primary/90 hover:text-white"
-          >
-            <ArrowRightIcon className="w-5 h-5 font-bold" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Compile and Flash</p>
-        </TooltipContent>
-      </Tooltip>
+      {/* Compile Button */}
+<Tooltip>
+  <TooltipTrigger asChild>
+    <Button
+      variant={"outline"}
+      className="ml-4 rounded-2xl bg-primary w-[60px] text-white font-semibold text-md leading-none hover:bg-primary/90 hover:text-white"
+    >
+      <ArrowRightIcon className="w-5 h-5 font-bold" />
+    </Button>
+  </TooltipTrigger>
+  <TooltipContent>
+    <p>Compile and Flash</p>
+  </TooltipContent>
+</Tooltip>
 
-      {/* Terminal Toggle Button */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-          className="ml-4"
-            variant="outline"
-            size="icon"
-            onClick={() => setIsTerminalOpen((prev) => !prev)}
-          >
-            <TerminalIcon className="w-5 h-5 text-primary" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Toggle Terminal</p>
-        </TooltipContent>
-      </Tooltip>
+{/* Terminal Toggle Button */}
+<Tooltip>
+  <TooltipTrigger asChild>
+    <Button
+      className="ml-4"
+      variant="outline"
+      size="icon"
+      onClick={() => setIsTerminalOpen((prev) => !prev)}
+    >
+      <TerminalIcon className="w-5 h-5 text-primary" />
+    </Button>
+  </TooltipTrigger>
+  <TooltipContent>
+    <p>Toggle Terminal</p>
+  </TooltipContent>
+</Tooltip>
+
     </div>
   </div>
 </header>
