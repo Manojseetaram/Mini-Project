@@ -19,65 +19,7 @@ struct ShellState {
     cwd: String,
 }
 
-//
-// -------------------------
-// RUN COMMAND (Terminal)
-// -------------------------
-// #[command]
-// fn run_command(
-//     command: String,
-//     args: Vec<String>,
-//     state: State<'_, Arc<Mutex<ShellState>>>,
-// ) -> Result<String, String> {
 
-//     let mut shell = state.lock().unwrap();
-
-//     // -----------------------
-//     // HANDLE `cd` COMMAND
-//     // -----------------------
-//     if command == "cd" {
-//         let target = args.get(0).map(|s| s.as_str()).unwrap_or("");
-
-//         let new_path = if target.is_empty() {
-//             dirs::home_dir().unwrap() // cd → home
-//         } else if target == ".." {
-//             PathBuf::from(&shell.cwd)
-//                 .parent()
-//                 .unwrap_or(Path::new(&shell.cwd))
-//                 .to_path_buf()
-//         } else {
-//             PathBuf::from(&shell.cwd).join(target)
-//         };
-
-//         if new_path.exists() && new_path.is_dir() {
-//             shell.cwd = new_path.to_string_lossy().to_string();
-//             return Ok(shell.cwd.clone());
-//         } else {
-//             return Err(format!("cd: no such directory: {}", target));
-//         }
-//     }
-
-//     // -----------------------
-//     // RUN NORMAL COMMANDS
-//     // -----------------------
-//     let full_cmd = format!("{} {}", command, args.join(" "));
-
-//     let output = Command::new("zsh")
-//         .arg("-c")
-//         .arg(&full_cmd)
-//         .current_dir(&shell.cwd)
-//         .output();
-
-//     match output {
-//         Ok(out) => {
-//             let mut result = String::new();
-//             result.push_str(&String::from_utf8_lossy(&out.stdout));
-//             result.push_str(&String::from_utf8_lossy(&out.stderr));
-//             Ok(result.trim().to_string())
-//         }
-//         Err(e) => Err(e.to_string()),
-//     }
-// }
 #[command]
 fn run_command(full: String, state: State<'_, Arc<Mutex<ShellState>>>) -> Result<String, String> {
     let mut shell = state.lock().unwrap();
@@ -279,6 +221,7 @@ fn write_file(path: String, content: String) -> Result<String, String> {
     let mut file = OpenOptions::new()
         .write(true)
         .truncate(true)
+        .create(true)   // <-- REQUIRED FIX
         .open(&path)
         .map_err(|error| format!("Failed to write: {}", error))?;
 
@@ -287,6 +230,7 @@ fn write_file(path: String, content: String) -> Result<String, String> {
 
     Ok(format!("File updated: {}", path))
 }
+
 
 #[command]
 fn delete_path(path: String) -> Result<String, String> {

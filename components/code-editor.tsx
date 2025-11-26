@@ -3,6 +3,7 @@
 import * as monaco from "monaco-editor"
 import { useTheme } from "next-themes"
 import { useEffect, useRef, useState } from "react"
+import { invoke } from "@tauri-apps/api/tauri";
 
 interface CodeEditorProps {
   file: { id: string; name: string; content?: string }
@@ -166,22 +167,32 @@ export default function CodeEditor({ file, onContentChange }: CodeEditorProps) {
     }
   }, [file.id])
 
-  // Handle typing updates
   useEffect(() => {
-    if (!monacoRef.current) return
+  if (!monacoRef.current) return;
 
-    const editor = monacoRef.current
-    const disposable = editor.onDidChangeModelContent(() => {
-      const newContent = editor.getValue()
-      if (!isTyping.current) {
-        isTyping.current = true
-        onContentChange?.(newContent)
-        isTyping.current = false
-      }
-    })
+  const editor = monacoRef.current;
+  let timeout: NodeJS.Timeout;
 
-    return () => disposable.dispose()
-  }, [onContentChange])
+  const disposable = editor.onDidChangeModelContent(() => {
+    const newContent = editor.getValue();
+
+    // Send content to parent if needed
+    onContentChange?.(newContent);
+
+    // Auto-save every 500 ms
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      invoke("write_file", {
+        path: file.id,         // full path of the file from backend
+        content: newContent,   // the code from Monaco
+      }).catch((err) => {
+        console.error("Auto-save failed:", err);
+      });
+    }, 500);
+  });
+
+  return () => disposable.dispose();
+}, [file.id, onContentChange]);
 
   // Update content from external changes (switching files, etc.)
   useEffect(() => {
